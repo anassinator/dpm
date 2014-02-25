@@ -108,6 +108,7 @@ public class ObstacleDetection extends Thread {
                 else
                     nav.turn(-Math.PI / 2);
                 nav.goForward(30);
+                LCD.drawString("    ", 0, 1);
             }
         }
 

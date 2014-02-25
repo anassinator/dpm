@@ -6,8 +6,8 @@
  */
 
 public class Navigation extends Thread {
-    private int FORWARD_SPEED = 180;
-    private int ROTATE_SPEED = 720;
+    private int FORWARD_SPEED = 720;
+    private int ROTATE_SPEED = 360;
 
     private double path[][]; // store desired path
 
@@ -24,9 +24,12 @@ public class Navigation extends Thread {
 
     public void run() {
         // travel path specified
-        for (; counter < path.length; counter++)
-            if (!found)
+        for (; counter < path.length; counter++) {
+            if (!found) {
                 travelTo(30.48 * path[counter][0],30.48 * path[counter][1]);
+                LCD.drawString(counter, 0, 1);
+            }
+        }
     }
 
     public void togglePause(boolean pause) {
@@ -73,6 +76,7 @@ public class Navigation extends Thread {
 
         while (Math.abs(robot.odometer.getX() - xDestination) >= 1.00 || Math.abs(robot.odometer.getY() - yDestination) >= 1.00) {
             if (paused) {
+                LCD.drawString("I'm not supposed to be here", 0, 6);
                 stop();
                 counter--;
                 while (paused);
