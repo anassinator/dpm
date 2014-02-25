@@ -8,7 +8,7 @@
 import lejos.nxt.*;
 import lejos.util.*;
 
-public class Robot { 
+public class Robot {
     private int FORWARD_SPEED = 180;
     private int ROTATE_SPEED = 50;
 
