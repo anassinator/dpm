@@ -1,0 +1,105 @@
+\documentclass[letterpaper,12pt]{article}
+
+\begin{document}
+
+\title{Lab 2. Odometry}
+\date{\today}
+\author{Anass Al-Wohoush \quad \quad Malcolm William Watt \\ 260575013 \quad \quad \quad \quad \quad \quad \quad 260585950\\ Team 42}
+\maketitle
+\mbox{}\\
+
+\section{Data}{
+\begin{table}[h]
+\centering
+    \begin{tabular}{|r|r|r|r|r|}
+    \hline
+    Run \# & Monitor X & Measured X & Monitor Y & Measured Y \\ \hline
+    1     & -0.12     & -2.4       & 1.45      & 3.2        \\ \hline
+    2     & -2.07     & -2.5       & 3.81      & 0.4        \\ \hline
+    3     & -1.69     & -2.6       & 2,73      & 2.8        \\ \hline
+    4     & 0.30      & -1.9       & -0.12     & 1.2        \\ \hline
+    5     & -1.81     & -1.9       & 2.70      & 2.3        \\ \hline
+    6     & -2.91     & -1.8       & 4.09      & 2.5        \\ \hline
+    7     & 0.18      & -1.7       & -0.92     & 3.1        \\ \hline
+    8     & -6.40     & -2.6       & 6.03      & 2.8        \\ \hline
+    9     & -0.20     & -2.0       & -0.02     & 2.6        \\ \hline
+    10    & -0.03     & -2.2       & 2.54      & 2.7        \\ \hline
+    \end{tabular}
+    \caption {Data Collected Using the Non-Corrected Method (in cm)}
+\end{table}
+\clearpage
+\begin{table}[h]
+\centering
+    \begin{tabular}{|r|r|r|r|r|}
+    \hline
+    Run \# & Monitor X & Measured X & Monitor Y & Measured Y \\ \hline
+    1     & 7.25      & 7.7        & 1.83      & 2.4        \\ \hline
+    2     & -2.61     & -0.8       & -0.03     & 0.1        \\ \hline
+    3     & 4.36      & 3.1        & 4.32      & 4.1        \\ \hline
+    4     & 3.59      & 5.5        & 0.61      & 1.5        \\ \hline
+    5     & -0.46     & -0.8       & 2.64      & 2.0        \\ \hline
+    6     & 3.38      & 4.0        & 2.89      & 3.3        \\ \hline
+    7     & 1.83      & 1.3        & 2.39      & 2.8        \\ \hline
+    8     & -3.14     & -2.0       & 3.68      & 1.7        \\ \hline
+    9     & 0.74      & 2.1        & 5.68      & 4.1        \\ \hline
+    10    & -7.05     & -5.3       & 6.12      & 3.2        \\ \hline
+    \end{tabular}
+    \caption {Data Collected Using the Corrected Method (in cm)}
+\end{table}
+\mbox{}\\
+\begin{figure}[h]
+  \centering
+  \begin{minipage}{2.5in}
+    \begin{tabular}{|r|r|}
+    \hline
+    Data       & Standard Deviation  \\ \hline
+    Monitor X  & 2.16                \\ \hline
+    Measured X & 0.88                \\ \hline
+    Monitor Y  & 2.06                \\ \hline
+    Measured Y & 0.35                \\ \hline
+    \end{tabular}
+    \caption {Standard Deviations of Non-Corrected Data (in cm)}
+  \end{minipage}
+  \qquad
+  \begin{minipage}{2.5in}
+    \begin{tabular}{|r|r|}
+    \hline
+    Data       & Standard Deviation  \\ \hline
+    Monitor X  & 4.21                \\ \hline
+    Measured X & 3.84                \\ \hline
+    Monitor Y  & 1.99                \\ \hline
+    Measured Y & 1.25                \\ \hline
+    \end{tabular}
+    \caption {Standard Deviations of Corrected Data (in cm)}
+  \end{minipage}
+\end{figure}
+}
+
+\section{Data Analysis}{
+\subsection{Standard Deviation}{For the purposes of this question we'll use the standard deviation of the Measured Values. When we corrected our values our standard deviation actually increased quite significantly. This is due to two things. 
+
+The first is that when we used our corrected method we had to measure from the center of the square to the current point and when we measured the non-corrected data we measured the final results using the starting point as the (0,0) reference point. We did not start the robot from the same place every time and therefore it is only natural that the preciseness of the measured value went down. This is because its final destination was in a constant state of change with respect to the reference point from test to test. 
+
+Going back to the non-corrected tests, the standard deviation is smaller because every time we ran the test the starting point was the same relative to the robot. So the desired final destination did not change from test to test and therefore our measurements were more precise. The second was the fact that there was a larger error in the measurement when we used the corrections. Since we measured from the center of the starting square, (which was not a very precise position because we were not allowed to make marks on the wood) we had a little bit of error from test to test on where our starting point was. When we measured with the non-corrected tests we could just put our finger on our reference starting point for the robot. When it came back it was not difficult and there was hardly any error since we just had to measure from the finger pointed spot to a new spot that was usually only about a centimeter away. 
+
+The corrected method was a completely different story. Since our reference point was the middle of the tile we would run into a few error producing speed bumps in our attempts to measure the displacement. The first and most obvious is that now the distance being measured is further leaving more places for incorrect ruler measurements and especially the error produced by not measuring parallel to the axis. Being non parallel is not always a big deal, but as the distance of measurement gets bigger the error increases into noticeable levels. 
+
+Another difficulty was the fact that the actual robots physical presence would impede the ability of us to measure the displacement. Since before there was hardly ever a large enough error for the robot to get in the way it was no big deal. With the correction however even if the robot got back into its initial starting position perfectly, the fact that the robot started with its wheels between the reference point and it's starting position made it difficult to physically measure the displacement. It ended up being kind of free hand and not the most accurate testing possible which is annoying because it creates extra error. 
+
+So basically the reason why the corrected data has a larger standard deviation is mostly due to the distances involved and the physical barriers as well as the changing of the reference point with respect to the robot from test to test.}
+
+\subsection{Expectations}{We expect the error in the y direction to be larger since on the last turn it has no way of checking the y-co-ordinates. Since it is moving in the x direction it checks the x-value more frequently towards the end so if there is any bias in the last turn then it will be amplified in the final result since there is no checking. The X-value is literally checked within five centimeters of its final destination so it shouldn't be wrong whereas the y value is checked with another 60 centimeters left to travel. Also the y value will be more affected by the final turn, in the case where it has a slightly off point of rotation the y value could be affected by the final turn and then it is not checked again so it is the most likely to have errors in the final results. 
+}
+}
+
+\section{Observations and Conclusion}{The error present would not be tolerable for larger distances since it would amplify over distance and presuming it is a 5 times larger distance this would mean we could expect the error to be over six centimeters in magnitude on every single test. This still doesn't seem like much but considering the size of the robot this means it could be interpreting its left or right wheel to be approximately where the center of rotation is which is not good. This is a major error and would cause large problems if the robot had to pass through a gap say the size of one tile since its boundaries would be completely unknown. The size of a tile is about 30 cm and 6 cm of error would mean that it could be up to 1/5th out of the desired tile without even realizing it. This is an error with respect to its position in a given tile of 20\% which is far too great to ever be reliable for any kind of serious task.
+ 
+We would expect the non-corrected method to increase in error as the distances got larger since it has no way of catching its already existing errors. We would also expect it to be linear with respect to the distance travelled since the majority of the current area is created by differences between the calculated theta and the actual orientation of the robot. Since the orientation affects the distance travelled by the robot with a constant of multiplication found using the cosine or the sine of the theta value, it should therefore affect the total error in the distance in a linear fashion. Actually one could predict that the error would increase by about 4 times the change in side length divided by the perimeter assuming that the robot is travelling in a square. Otherwise it could be calculated using the change in arc length in order to determine the magnitude of the error. In short however, the magnitude of the error would most likely correlate in a linear fashion with the length of the sides of the path. 
+}
+
+\section{Further Improvements}{
+One of the main issues that hinder the robot's accuracy is due to the slipping of the wheels. Although the slipping can never be fully eliminated, the obvious solution is to lower the speed of the wheels as it will provide more accurate movement and greater traction. Another solution would involve avoiding rapid acceleration of the wheels to avoid slipping once the robot is about to stop for a turn and about to charge after a turn.\\\\
+The robot does have another source of error however: the x and y positions of the robot are always derived by the angle reported by the odometer and that angle is subject to inaccuracy due to both the turns and the orientation of the robot at start. This can be corrected easily by adding a second color sensor next to the first at the front of the robot. This would grant us knowledge of the orientation of the line with respect to us and thus allow for the necessary corrections. This can also be accomplished with a single color sensor however by simply storing the position of the robot once it crosses the first line and comparing it to the value at the cross of the next. One can then solve for the orientation using simple trigonometry by comparing it to the known perpendicular distance between the lines (31.48 cm). This however has two solutions as this orientation could be either tilted to the right or to the left of the norm. Fortunately, discerning between both is as simple as analysing the distance travelled after the next turn until the following line. If said distance from the center of the robot is less than half of the length of the square, then the angle difference is to the right, otherwise it is to the left.
+}
+
+\end{document}
