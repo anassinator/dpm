@@ -21,6 +21,7 @@ public class ObstacleDetection extends Thread {
     private static final double COLOR_THRESHOLD = 0.05;
     private static int counter = 0, filterCount = 0, blueCount = 0, redCount = 0;
     private static int distance, id;
+    public static ColorSensor color = new ColorSensor(SensorPort. S2);
 
     public ObstacleDetection(Robot robot, Navigation nav) {
         this.robot = robot;
@@ -52,6 +53,8 @@ public class ObstacleDetection extends Thread {
                 }
             }
 
+            nav.paused = true;
+
             // NOTIFY OF OBJECT
             Sound.systemSound(true, 2);
             LCD.drawString("OBJECT AHEAD", 0, 0);
@@ -64,8 +67,11 @@ public class ObstacleDetection extends Thread {
             // BLOCK
             // WOODEN BLOCK IS SIGNIFICANTLY
             // MORE RED
+            
+            // robot.color.setFloodlight(true); 
+            
             while (blueCount <= 100 && redCount <= 100) {
-                Color cl = robot.color.getRawColor();
+                Color cl =  color.getRawColor();
                 if (Math.abs(cl.getBlue() - cl.getRed())/(double)cl.getRed() < COLOR_THRESHOLD) {
                     blueCount++;
                     redCount = 0;
@@ -82,6 +88,8 @@ public class ObstacleDetection extends Thread {
                     counter = 0;
                 }
             }
+
+            // robot.color.setFloodlight(false);
 
             // NOTIFY OF OBJECT'S NATURE
             Sound.systemSound(false, 3);
@@ -101,10 +109,16 @@ public class ObstacleDetection extends Thread {
                 nav.goForward(30);
                 LCD.drawString("    ", 0, 1);
             }
+
+            nav.paused = false;
         }
 
+        nav.found = true;
+        nav.paused = false;
+
         nav.travelTo(60.96, 182.88);
-        nav.turnTo(-Math.PI / 4);
+
+        nav.turnTo(5 * Math.PI / 4);
         robot.letGo();
     }
 }

@@ -6,7 +6,8 @@ import lejos.nxt.*;
 import lejos.util.*;
 
 public class Navigation extends Thread {
-    private static final int FORWARD_SPEED = 250;
+    private static int FORWARD_SPEED = 250;
+    private static int ROTATE_SPEED = 50;
     private static boolean turning = false, navigating = false, done = false; // setup needed flags
     private static Odometer odometer;
     private static double path[][]; // store desired path
@@ -14,6 +15,7 @@ public class Navigation extends Thread {
     private static double leftRadius = 2.16, rightRadius = 2.14, width = 16.1; // vehicle properties
     private static UltrasonicSensor sensor = new UltrasonicSensor(SensorPort.S2); // setup ultrasonic sensor
     private static int threshold = 15; // threshold for ultrasonic sensor
+    public static boolean paused = false, found = false;
 
     public Navigation(Odometer odometer, double[][] path) {
         // store odometer and path
@@ -32,7 +34,23 @@ public class Navigation extends Thread {
     public void run() {
         // travel path specified
         for (int i = 0; i < path.length; i++)
-            travelTo(30.48 * path[i][0], 30.48 * path[i][1]);
+            if (!found)
+                travelTo(30.48 * path[i][0], 30.48 * path[i][1]);
+    }
+
+    public void goForward() {
+        leftMotor.forward();
+        rightMotor.forward();
+    }
+
+    public void goBackward() {
+        leftMotor.backward();
+        rightMotor.backward();
+    }
+
+    public void goForward(double distance) {
+        rightMotor.rotate(convertDistance(rightRadius, distance), true);
+        leftMotor.rotate(convertDistance(leftRadius, distance), false);
     }
 
     public static void travelTo(double xDestination, double yDestination) {
@@ -68,34 +86,18 @@ public class Navigation extends Thread {
 
             // while the motors are moving, keep measuring sensor data to avoid obstacles
             while (leftMotor.isMoving() || rightMotor.isMoving()) {
-                // if obstacle detected within threshold
-                if (sensor.getDistance() < threshold) {
+                // if obstacle detected
+                if (paused) {
                     // stop motors
-                    leftMotor.stop();
-                    rightMotor.stop();
+                    stop();
 
-                    // rotate 90 degrees to the right
-                    leftMotor.rotate(convertAngle(leftRadius, width, 1.57), true);
-                    rightMotor.rotate(-convertAngle(rightRadius, width, 1.57), false);
-
-                    // move forward for a short while
-                    leftMotor.rotate(convertDistance(leftRadius, 35), true);
-                    rightMotor.rotate(convertDistance(rightRadius, 35), true);
-
-                    // wait until movement of motors is over 
-                    while(leftMotor.isMoving() || rightMotor.isMoving())
-                        // check whether this sudden movement got you close to the destination, if so break and try again
-                        if (Math.abs(xDestination - odometer.getX()) <= 10 && Math.abs(yDestination - odometer.getY()) <= 10)
-                            break;
-
-                    // break from loop and recalculate everything based on new current location
-                    break;
+                    while (paused);
                 }
-                // set done and return from function if and only if we are within +/- (1,1) of the desired destination
-                // otherwise keep going until motors stop and repeat
-                else if (Math.abs(xDestination - odometer.getX()) <= 1 && Math.abs(yDestination - odometer.getY()) <= 1)
-                    done = true;
             }
+            
+            // set done and return from function if and only if we are within +/- (1,1) of the desired destination
+            if (Math.abs(xDestination - odometer.getX()) <= 1 && Math.abs(yDestination - odometer.getY()) <= 1)
+                done = true;
         }
         
         // stop motors
@@ -104,6 +106,18 @@ public class Navigation extends Thread {
         
         // reset navigating flag
         navigating = false;
+    }
+
+    public void turn(double theta) {
+        setRotateSpeed(ROTATE_SPEED);
+
+        // rotate said angle and wait until done
+        leftMotor.rotate(-convertAngle(leftRadius, width, theta), true);
+        rightMotor.rotate(convertAngle(rightRadius, width, theta), false);
+
+        stop();
+
+        setForwardSpeed(FORWARD_SPEED);
     }
 
     public static void turnTo(double theta) {
@@ -128,6 +142,26 @@ public class Navigation extends Thread {
         // reset turning flag
         turning = false;
     }
+
+    public static void stop() {
+        leftMotor.stop();
+        rightMotor.stop();
+    }
+
+    public void setForwardSpeed(int speed) {
+        FORWARD_SPEED = speed;
+
+        leftMotor.setSpeed(speed);
+        rightMotor.setSpeed(speed);
+    }
+
+    public void setRotateSpeed(int speed) {
+        ROTATE_SPEED = speed;
+
+        leftMotor.setSpeed(speed);
+        rightMotor.setSpeed(speed);
+    }
+
 
     public static boolean isNavigating() {
         // self-explanatory
