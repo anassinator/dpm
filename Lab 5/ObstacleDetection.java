@@ -96,9 +96,9 @@ public class ObstacleDetection extends Thread {
             LCD.drawString(id == SMURF ? "SMURF" : "WOOD", 0, 1);
             
             if (id == SMURF) {
-                nav.goForward(-5);
+                nav.goForward(-7);
                 nav.turn(Math.PI);
-                nav.goForward(-3);
+                nav.goForward(-5);
                 robot.grab();
                 nav.found = true;
                 break;
@@ -117,6 +117,7 @@ public class ObstacleDetection extends Thread {
         nav.paused = false;
 
         nav.travelTo(60.96, 182.88);
+        nav.goForward(30);
 
         nav.turnTo(5 * Math.PI / 4);
         robot.letGo();
