@@ -12,7 +12,7 @@ public class Lab5 {
     private static Odometer odometer = new Odometer();
     private static Display display = new Display(odometer);
     private static Robot robot = new Robot();
-    private static Navigation nav = new Navigation(robot, path);
+    private static Navigation nav = new Navigation(odometer, path);
     // private static Localizer localizer = new Localizer(robot, nav);
     // private static ObstacleDetection obstacleManager = new ObstacleDetection(robot, nav);
 
