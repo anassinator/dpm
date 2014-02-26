@@ -14,6 +14,9 @@ public class Odometer extends Thread {
     private double x, y, theta;
     private int prevTacoRight = 0, prevTacoLeft = 0;    // COUNTER TO STORE PREVIOUS TACHOMETER COUNT
 
+    // odometer update period, in ms
+    private static final long ODOMETER_PERIOD = 25;
+
     // lock object for mutual exclusion
     private Object lock;
 

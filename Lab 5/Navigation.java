@@ -27,6 +27,7 @@ public class Navigation {
         for (int i = 0; i < path.length; i++) {
             if (!found) {
                 travelTo(30.48 * path[i][0],30.48 * path[i][1]);
+                Sound.beep();
             }
         }
     }
@@ -48,52 +49,68 @@ public class Navigation {
     }
     
     public void travelTo(double xDestination, double yDestination) {
-        // calculate desired location from current location
-        // by measuring the difference
-        double x = xDestination - robot.odometer.getX();
-        double y = yDestination - robot.odometer.getY();
-    
-        // measure desired orientation by trigonometry
-        // atan2 deals with correct signs for us
-        double desiredOrientation = Math.atan2(y, x);
+        boolean done = false;
 
-        // spin to desired angle
-        turnTo(desiredOrientation);
-        // measure desired distance by pythagorus
-        double desiredDistance = Math.sqrt(x * x + y * y);
+        while (!done) {
+            // calculate desired location from current location
+            // by measuring the difference
+            double x = xDestination - robot.odometer.getX();
+            double y = yDestination - robot.odometer.getY();
+        
+            // measure desired orientation by trigonometry
+            // atan2 deals with correct signs for us
+            double desiredOrientation = Math.atan2(y, x);
 
-        // set motor speeds
-        setForwardSpeed(FORWARD_SPEED);
+            // spin to desired angle
+            turnTo(desiredOrientation);
+            // measure desired distance by pythagorus
+            double desiredDistance = Math.sqrt(x * x + y * y);
 
-        // move forward desired distance and return immediately
-        robot.leftMotor.rotate(convertDistance(robot.leftRadius, desiredDistance), true);
-        robot.rightMotor.rotate(convertDistance(robot.rightRadius, desiredDistance), false);
+            // set motor speeds
+            setForwardSpeed(FORWARD_SPEED);
+
+            // move forward desired distance and return immediately
+            robot.leftMotor.rotate(convertDistance(robot.leftRadius, desiredDistance), true);
+            robot.rightMotor.rotate(convertDistance(robot.rightRadius, desiredDistance), true);
+
+            while (robot.leftMotor.isMoving() || robot.rightMotor.isMoving());
+
+            if (Math.abs(robot.odometer.getX() - xDestination) <= 2.00 || Math.abs(robot.odometer.getY() - yDestination) <= 2.00)
+                done = true;
+        }
 
         // stop motors
         stop();
-        return true;
     }
 
     public void turnTo(double theta) {
         setRotateSpeed(ROTATE_SPEED);
+        boolean done = false;
 
-        // calculate angle to rotate realtive to current angle
-        double currentOrientation = robot.odometer.getTheta();
-        double angle = theta - currentOrientation;
+        while (!done) {
+            // calculate angle to rotate realtive to current angle
+            double currentOrientation = robot.odometer.getTheta();
+            double angle = theta - currentOrientation;
 
-        // correct angle to remain within -180 and 180 degrees
-        // to minimize angle to spin
-        if (angle < -3.14)
-            angle += 6.28;
-        else if (angle > 3.14)
-            angle -= 6.28;
+            // correct angle to remain within -180 and 180 degrees
+            // to minimize angle to spin
+            if (angle < -3.14)
+                angle += 6.28;
+            else if (angle > 3.14)
+                angle -= 6.28;
 
-        // rotate said angle and wait until done
-        robot.leftMotor.rotate(-convertAngle(robot.leftRadius, robot.width, angle), true);
-        robot.rightMotor.rotate(convertAngle(robot.rightRadius, robot.width, angle), false);
+            // rotate said angle and wait until done
+            robot.leftMotor.rotate(-convertAngle(robot.leftRadius, robot.width, angle), true);
+            robot.rightMotor.rotate(convertAngle(robot.rightRadius, robot.width, angle), false);
+
+            stop();
+
+            if (Math.abs(robot.odometer.getTheta() - theta) <= 0.017)
+                done = true;
+        }
 
         stop();
-
+        
         setForwardSpeed(FORWARD_SPEED);
     }
 

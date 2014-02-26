@@ -34,7 +34,7 @@ public class Lab5 {
 
         // localizer.doLocalization();
         // obstacleManager.start();
-        nav.start();
+        nav.run();
     }
 
 }
