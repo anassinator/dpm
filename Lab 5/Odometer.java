@@ -14,9 +14,6 @@ public class Odometer extends Thread {
     private double x, y, theta;
     private int prevTacoRight = 0, prevTacoLeft = 0;    // COUNTER TO STORE PREVIOUS TACHOMETER COUNT
 
-    // odometer update period, in ms
-    private static final long ODOMETER_PERIOD = 25;
-
     // lock object for mutual exclusion
     private Object lock;
 
@@ -33,7 +30,6 @@ public class Odometer extends Thread {
         long updateStart, updateEnd;
 
         while (true) {
-            updateStart = System.currentTimeMillis();
             // put (some of) your odometer code here
             
             // NO...
@@ -71,18 +67,6 @@ public class Odometer extends Thread {
                         theta += Math.PI * 2;
                     else if (theta > Math.PI * 2)
                         theta -= Math.PI * 2;
-                }
-            }
-
-            // this ensures that the odometer only runs once every period
-            updateEnd = System.currentTimeMillis();
-            if (updateEnd - updateStart < ODOMETER_PERIOD) {
-                try {
-                    Thread.sleep(ODOMETER_PERIOD - (updateEnd - updateStart));
-                } catch (InterruptedException e) {
-                    // there is nothing to be done here because it is not
-                    // expected that the odometer will be interrupted by
-                    // another thread
                 }
             }
         }

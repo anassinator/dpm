@@ -5,16 +5,16 @@
  * @team        42
  */
 
-public class Navigation extends Thread {
-    private int FORWARD_SPEED = 720;
-    private int ROTATE_SPEED = 360;
+import lejos.nxt.*;
+
+public class Navigation {
+    private int FORWARD_SPEED = 240;
+    private int ROTATE_SPEED = 50;
 
     private double path[][]; // store desired path
 
     private Robot robot;
 
-    private int counter = 0;
-    private boolean paused = false;
     public boolean found = false;
 
     public Navigation(Robot robot, double[][] path) {
@@ -24,16 +24,11 @@ public class Navigation extends Thread {
 
     public void run() {
         // travel path specified
-        for (; counter < path.length; counter++) {
+        for (int i = 0; i < path.length; i++) {
             if (!found) {
-                travelTo(30.48 * path[counter][0],30.48 * path[counter][1]);
-                LCD.drawString(counter, 0, 1);
+                travelTo(30.48 * path[i][0],30.48 * path[i][1]);
             }
         }
-    }
-
-    public void togglePause(boolean pause) {
-        paused = pause;
     }
 
     public void goForward() {
@@ -45,6 +40,7 @@ public class Navigation extends Thread {
         robot.leftMotor.backward();
         robot.rightMotor.backward();
     }
+
 
     public void goForward(double distance) {
         robot.rightMotor.rotate(convertDistance(robot.rightRadius, distance), true);
@@ -63,7 +59,6 @@ public class Navigation extends Thread {
 
         // spin to desired angle
         turnTo(desiredOrientation);
-
         // measure desired distance by pythagorus
         double desiredDistance = Math.sqrt(x * x + y * y);
 
@@ -72,48 +67,32 @@ public class Navigation extends Thread {
 
         // move forward desired distance and return immediately
         robot.leftMotor.rotate(convertDistance(robot.leftRadius, desiredDistance), true);
-        robot.rightMotor.rotate(convertDistance(robot.rightRadius, desiredDistance), true);
+        robot.rightMotor.rotate(convertDistance(robot.rightRadius, desiredDistance), false);
 
-        while (Math.abs(robot.odometer.getX() - xDestination) >= 1.00 || Math.abs(robot.odometer.getY() - yDestination) >= 1.00) {
-            if (paused) {
-                LCD.drawString("I'm not supposed to be here", 0, 6);
-                stop();
-                counter--;
-                while (paused);
-                return;
-            }
-        }
-        
         // stop motors
         stop();
+        return true;
     }
 
     public void turnTo(double theta) {
         setRotateSpeed(ROTATE_SPEED);
 
-        boolean done = false;
+        // calculate angle to rotate realtive to current angle
+        double currentOrientation = robot.odometer.getTheta();
+        double angle = theta - currentOrientation;
 
-        while (!done) {
-            // calculate angle to rotate realtive to current angle
-            double currentOrientation = robot.odometer.getTheta();
-            double angle = theta - currentOrientation;
+        // correct angle to remain within -180 and 180 degrees
+        // to minimize angle to spin
+        if (angle < -3.14)
+            angle += 6.28;
+        else if (angle > 3.14)
+            angle -= 6.28;
 
-            // correct angle to remain within -180 and 180 degrees
-            // to minimize angle to spin
-            if (angle < -3.14)
-                angle += 6.28;
-            else if (angle > 3.14)
-                angle -= 6.28;
+        // rotate said angle and wait until done
+        robot.leftMotor.rotate(-convertAngle(robot.leftRadius, robot.width, angle), true);
+        robot.rightMotor.rotate(convertAngle(robot.rightRadius, robot.width, angle), false);
 
-            // rotate said angle and wait until done
-            robot.leftMotor.rotate(-convertAngle(robot.leftRadius, robot.width, angle), true);
-            robot.rightMotor.rotate(convertAngle(robot.rightRadius, robot.width, angle), false);
-
-            stop();
-
-            if (Math.abs(robot.odometer.getTheta() - theta) <= 1.00)
-                done = true; 
-        }
+        stop();
 
         setForwardSpeed(FORWARD_SPEED);
     }

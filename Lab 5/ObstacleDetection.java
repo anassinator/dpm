@@ -22,8 +22,6 @@ public class ObstacleDetection extends Thread {
     private static int counter = 0, filterCount = 0, blueCount = 0, redCount = 0;
     private static int distance, id;
 
-    private static ArrayList<Obstacle> obstacles = new ArrayList<Obstacle>();
-
     public ObstacleDetection(Robot robot, Navigation nav) {
         this.robot = robot;
         this.nav = nav;
@@ -53,8 +51,6 @@ public class ObstacleDetection extends Thread {
                     filterCount = 0;
                 }
             }
-
-            nav.togglePause(true);
 
             // NOTIFY OF OBJECT
             Sound.systemSound(true, 2);
@@ -87,26 +83,21 @@ public class ObstacleDetection extends Thread {
                 }
             }
 
-            obstacles.add(new Obstacle(id, distance, robot.odometer));
-
             // NOTIFY OF OBJECT'S NATURE
             Sound.systemSound(false, 3);
             LCD.drawString(id == SMURF ? "SMURF" : "WOOD", 0, 1);
-
-            nav.togglePause(false);
             
             if (id == SMURF) {
                 nav.goForward(-5);
                 nav.turn(Math.PI);
+                nav.goForward(-3);
                 robot.grab();
                 nav.found = true;
                 break;
             } else {
                 nav.goForward(-5);
-                if (robot.odometer.getX() > 30.94)
-                    nav.turn(Math.PI / 2);
-                else
-                    nav.turn(-Math.PI / 2);
+                nav.turn(Math.PI / 2);
+
                 nav.goForward(30);
                 LCD.drawString("    ", 0, 1);
             }
