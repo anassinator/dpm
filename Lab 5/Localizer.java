@@ -80,7 +80,7 @@ public class Localizer {
 
 		robot.localizing = false;
 
-		nav.turnTo(Math.PI / 2);
+		nav.turnTo(Math.PI / 2, true);
 	}
 	
 	private int getFilteredData() {

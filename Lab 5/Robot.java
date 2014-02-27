@@ -15,7 +15,6 @@ public class Robot {
     public final double width = 16.1;                   // DISTANCE BETWEEN WHEELS
     
     public NXTRegulatedMotor claw = Motor.A, leftMotor = Motor.B, rightMotor = Motor.C;
-    public static ColorSensor color = new ColorSensor(SensorPort. S2);
     public static UltrasonicSensor sonic = new UltrasonicSensor(SensorPort.S3);
 
     public boolean localizing = false;

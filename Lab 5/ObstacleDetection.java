@@ -18,10 +18,11 @@ public class ObstacleDetection {
     public Navigation nav;
 
     private final int DISTANCE_THRESHOLD = 15;
-    private final double COLOR_THRESHOLD = 0.05;
+    private final double COLOR_THRESHOLD = 15;
     private int counter = 0, filterCount = 0, blueCount = 0, redCount = 0;
     private int distance, id;
-    public ColorSensor color = new ColorSensor(SensorPort. S2);
+
+    public ColorSensor color = new ColorSensor(SensorPort.S2);
 
     public ObstacleDetection(Robot robot) {
         this.robot = robot;
@@ -41,7 +42,7 @@ public class ObstacleDetection {
         // AND MAKE SURE WITHIN 15 CM
         // OTHERWISE DRIVE FORWARD UNTIL
         // OBJECT IS DETECTED
-        while (filterCount <= 10) {
+        while (filterCount <= 3) {
             if (robot.sonic.getDistance() < DISTANCE_THRESHOLD) {                    
                 filterCount++;
             }
@@ -67,22 +68,20 @@ public class ObstacleDetection {
         // WOODEN BLOCK IS SIGNIFICANTLY
         // MORE RED
         
-        // robot.color.setFloodlight(true); 
+        color.setFloodlight(false); 
         
-        while (blueCount <= 100 && redCount <= 100) {
-            Color cl =  color.getRawColor();
-            if (Math.abs(cl.getBlue() - cl.getRed())/(double)cl.getRed() < COLOR_THRESHOLD) {
-                blueCount++;
-                redCount = 0;
-                id = SMURF;
-            } else {
+        while (blueCount <= 2 && redCount <= 2) {
+            Color cl = color.getRawColor();
+            if (cl.getRed() - cl.getBlue() > COLOR_THRESHOLD) {
                 redCount++;
                 blueCount = 0;
-                id = WOOD;             
+                id = WOOD;
+            } else {
+                blueCount++;
+                redCount = 0;
+                id = SMURF;             
             }
         }
-
-        // robot.color.setFloodlight(false);
 
         // NOTIFY OF OBJECT'S NATURE
         Sound.systemSound(false, 3);

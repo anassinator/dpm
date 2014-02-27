@@ -6,7 +6,7 @@ import lejos.nxt.*;
 import lejos.util.*;
 
 public class Navigation extends Thread {
-    private int FORWARD_SPEED = 250;
+    private int FORWARD_SPEED = 150;
     private int ROTATE_SPEED = 50;
     private boolean turning = false, navigating = false, done = false; // setup needed flags
     private Odometer odometer;
@@ -37,7 +37,7 @@ public class Navigation extends Thread {
         // travel path specified
         for (int i = 0; i < path.length; i++)
             if (!found)
-                travelTo(30.48 * path[i][0], 30.48 * path[i][1]);
+                travelTo(30.48 * path[i][0], 30.48 * path[i][1], false);
 
         if (found) {
             goForward(-7);
@@ -45,10 +45,10 @@ public class Navigation extends Thread {
             goForward(-5);
             grab();
 
-            travelTo(60.96, 182.88);
-            goForward(30);
+            travelTo(60.96, 182.88, true);
 
-            turnTo(5 * Math.PI / 4);
+            turnTo(5 * Math.PI / 4, true);
+            goForward(-10);
             letGo();
         }
     }
@@ -68,7 +68,7 @@ public class Navigation extends Thread {
         leftMotor.rotate(convertDistance(leftRadius, distance), false);
     }
 
-    public void travelTo(double xDestination, double yDestination) {
+    public void travelTo(double xDestination, double yDestination, boolean wait) {
         // set navigation and done flags
         navigating = true;
         done = false;
@@ -86,7 +86,7 @@ public class Navigation extends Thread {
             double desiredOrientation = Math.atan2(y, x);
 
             // spin to desired angle
-            turnTo(desiredOrientation);
+            turnTo(desiredOrientation, wait);
 
             // measure desired distance by pythagorus
             double desiredDistance = Math.sqrt(x * x + y * y);
@@ -97,15 +97,16 @@ public class Navigation extends Thread {
 
             // move forward desired distance and return immediately
             leftMotor.rotate(convertDistance(leftRadius, desiredDistance), true);
-            rightMotor.rotate(convertDistance(rightRadius, desiredDistance), true);
+            rightMotor.rotate(convertDistance(rightRadius, desiredDistance), !wait);
 
             // while the motors are moving, keep measuring sensor data to avoid obstacles
-            while (!found && (leftMotor.isMoving() || rightMotor.isMoving())) {
+            while (!wait && !found && (leftMotor.isMoving() || rightMotor.isMoving())) {
                 // if obstacle detected
                 if (obstacleManager.search() == 1) {
                     stop();
                     if(obstacleManager.detect() == 1) {
                         found = true;
+                        done = true;
                         break;
                     } else {
                         goForward(-5);
@@ -140,7 +141,7 @@ public class Navigation extends Thread {
         setForwardSpeed(FORWARD_SPEED);
     }
 
-    public void turnTo(double theta) {
+    public void turnTo(double theta, boolean wait) {
         // calculate angle to rotate realtive to current angle
         boolean done = false;
 
@@ -160,8 +161,23 @@ public class Navigation extends Thread {
 
             // rotate said angle and wait until done
             leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
-            rightMotor.rotate(convertAngle(rightRadius, width, angle), false);
+            rightMotor.rotate(convertAngle(rightRadius, width, angle), !wait);
 
+            while (!wait && !found && (leftMotor.isMoving() || rightMotor.isMoving())) {
+                // if obstacle detected
+                if (obstacleManager.search() == 1) {
+                    stop();
+                    if(obstacleManager.detect() == 1) {
+                        found = true;
+                        done = true;
+                        break;
+                    } else {
+                        goForward(-5);
+                        turn(Math.PI / 2);
+                        goForward(30);
+                    }
+                }
+            }
             // if (Math.abs(odometer.getTheta() - theta) <= 0.02)
             //     done = true;
         // }
