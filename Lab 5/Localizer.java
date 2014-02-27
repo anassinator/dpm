@@ -26,11 +26,11 @@ public class Localizer {
 	}
 	
 	public void doLocalization() {
-		robot.localizing = true;
+		// set localizing flag
+        robot.localizing = true;
 
+        // set low speed to improve accuracy
 		nav.setRotateSpeed(50);
-
-		double[] pos = new double [3];
 
 		LCD.drawString("LOCATING...", 0, 0);
 		
@@ -50,9 +50,6 @@ public class Localizer {
         // play lower frequency sound
         Sound.playTone(2000,100);
 
-        // stop motors
-		// nav.stop();
-
 		// switch direction and wait until it sees no wall
 		while (getFilteredData() < 50) {
             robot.leftMotor.backward();
@@ -69,17 +66,16 @@ public class Localizer {
         // play lower frequency sound
         Sound.playTone(2000,100);
 
-        // stop motors
-		// nav.stop();
-
 		// measure orientation
 		deltaTheta = (secondAngle + firstAngle) / 2 - 50;
 
 		// update the odometer position
 		robot.odometer.setTheta(Math.toRadians(secondAngle - deltaTheta));
 
+        // reset localizing flag
 		robot.localizing = false;
 
+        // turn to 90 degrees
 		nav.turnTo(Math.PI / 2, true);
 	}
 	

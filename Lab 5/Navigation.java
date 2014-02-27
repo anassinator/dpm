@@ -17,6 +17,7 @@ public class Navigation extends Thread {
     private int threshold = 15; // threshold for ultrasonic sensor
     public boolean paused = false, found = false, stop = false;
     private ObstacleDetection obstacleManager;
+    private double SIZE_OF_ONE_SQUARE = 30.48;
 
     public Navigation(Odometer odometer, ObstacleDetection obstacleManager, double[][] path) {
         // store odometer and path
@@ -37,37 +38,34 @@ public class Navigation extends Thread {
         // travel path specified
         for (int i = 0; i < path.length; i++)
             if (!found)
-                travelTo(30.48 * path[i][0], 30.48 * path[i][1], false);
+                // search until found styrofoam block
+                travelTo(SIZE_OF_ONE_SQUARE * path[i][0], SIZE_OF_ONE_SQUARE * path[i][1], false);
 
         if (found) {
+            // once styrofoam found, back up, rotate 180 degrees, move in and grab
             goForward(-7);
             turn(Math.PI);
             goForward(-5);
             grab();
 
-            travelTo(90.96, 182.88, true);
+            // travel to corner
+            travelTo(60.96, 182.88, true);
 
+            // turn such that block is in corner square
             turnTo(5 * Math.PI / 4, true);
-            goForward(-20);
+
+            // let go
             letGo();
         }
     }
 
-    public void goForward() {
-        leftMotor.forward();
-        rightMotor.forward();
-    }
-
-    public void goBackward() {
-        leftMotor.backward();
-        rightMotor.backward();
-    }
-
+    // go forward desired distance
     public void goForward(double distance) {
         rightMotor.rotate(convertDistance(rightRadius, distance), true);
         leftMotor.rotate(convertDistance(leftRadius, distance), false);
     }
 
+    // travel to certain point specifying whether to search or not
     public void travelTo(double xDestination, double yDestination, boolean wait) {
         // set navigation and done flags
         navigating = true;
@@ -104,11 +102,14 @@ public class Navigation extends Thread {
                 // if obstacle detected
                 if (obstacleManager.search() == 1) {
                     stop();
+                    // if obstacle is styrofoam
                     if(obstacleManager.detect() == 1) {
                         found = true;
                         done = true;
                         break;
                     } else {
+                        // if obstacle is wooden block
+                        // avoid
                         goForward(-7);
                         turn(-Math.PI / 2);
                         goForward(40);
@@ -145,46 +146,42 @@ public class Navigation extends Thread {
 
     public void turnTo(double theta, boolean wait) {
         // calculate angle to rotate realtive to current angle
-        boolean done = false;
+        double currentOrientation = odometer.getTheta();
+        double angle = theta - currentOrientation;
 
-        // while (!done) {
-            double currentOrientation = odometer.getTheta();
-            double angle = theta - currentOrientation;
+        // correct angle to remain within -180 and 180 degrees
+        // to minimize angle to spin
+        if (angle < -3.14)
+            angle += 6.28;
+        else if (angle > 3.14)
+            angle -= 6.28;
 
-            // correct angle to remain within -180 and 180 degrees
-            // to minimize angle to spin
-            if (angle < -3.14)
-                angle += 6.28;
-            else if (angle > 3.14)
-                angle -= 6.28;
+        // set turning flag
+        turning = true; 
 
-            // set turning flag
-            turning = true; 
+        // rotate said angle and wait until done
+        leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
+        rightMotor.rotate(convertAngle(rightRadius, width, angle), !wait);
 
-            // rotate said angle and wait until done
-            leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
-            rightMotor.rotate(convertAngle(rightRadius, width, angle), !wait);
-
-            while (!wait && !found && (leftMotor.isMoving() || rightMotor.isMoving())) {
-                // if obstacle detected
-                if (obstacleManager.search() == 1) {
-                    stop();
-                    if(obstacleManager.detect() == 1) {
-                        found = true;
-                        done = true;
-                        break;
-                    } else {
-                        goForward(-7);
-                        turn(-Math.PI / 2);
-                        goForward(40);
-                        turn(Math.PI / 2);
-                        goForward(10);
-                    }
+        while (!wait && !found && (leftMotor.isMoving() || rightMotor.isMoving())) {
+            // if obstacle detected
+            if (obstacleManager.search() == 1) {
+                stop();
+                // if obstacle is styrofoam block
+                if(obstacleManager.detect() == 1) {
+                    found = true;
+                    break;
+                } else {
+                    // if obstacle is wooden block
+                    // avoid
+                    goForward(-7);
+                    turn(-Math.PI / 2);
+                    goForward(40);
+                    turn(Math.PI / 2);
+                    goForward(10);
                 }
             }
-            // if (Math.abs(odometer.getTheta() - theta) <= 0.02)
-            //     done = true;
-        // }
+        }
 
         // reset turning flag
         turning = false;

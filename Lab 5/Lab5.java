@@ -8,6 +8,7 @@
 import lejos.nxt.*;
 
 public class Lab5 {
+    // path to search
     private static double path[][] = {{1,2}, {1,4}, {2,4}, {0,5}, {2,5}, {0,6}, {2,6}, {0,6.5}, {2,6.5}};
     private static Odometer odometer = new Odometer();
     private static Display display = new Display(odometer);
@@ -27,12 +28,18 @@ public class Lab5 {
         // CLEAR DISPLAY
         LCD.clear();
 
+        // set up robot and odometer
         robot.odometer = odometer;
         odometer.robot = robot;
+
+        // start odometer and display
         odometer.start();
         display.start();
 
+        // localize
         localizer.doLocalization();
+
+        // search
         nav.start();
     }
 

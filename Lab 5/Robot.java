@@ -14,8 +14,10 @@ public class Robot {
     public final double rightRadius = 2.13;             // RADIUS OF RIGHT WHEEL
     public final double width = 16.1;                   // DISTANCE BETWEEN WHEELS
     
+    // STORE MOTORS AND ULTRASONIC SENSOR
     public NXTRegulatedMotor claw = Motor.A, leftMotor = Motor.B, rightMotor = Motor.C;
     public static UltrasonicSensor sonic = new UltrasonicSensor(SensorPort.S3);
 
+    // STORE WHETHER TRYING TO LOCALIZE OR NOT
     public boolean localizing = false;
 }

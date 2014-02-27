@@ -29,6 +29,7 @@ public class ObstacleDetection {
     }
 
     public int search() {
+        // set up ultra sonic sensor
         robot.sonic.continuous();
             
         LCD.drawString("SEARCHING...", 0, 0);
@@ -55,8 +56,8 @@ public class ObstacleDetection {
         Sound.systemSound(true, 2);
         LCD.drawString("OBJECT AHEAD", 0, 0);
 
+        // return obstacle detected
         return 1;
-
     }
 
     public int detect() {
@@ -68,15 +69,18 @@ public class ObstacleDetection {
         // WOODEN BLOCK IS SIGNIFICANTLY
         // MORE RED
         
+        // prepare color sensor
         color.setFloodlight(false); 
         
         while (blueCount <= 2 && redCount <= 2) {
             Color cl = color.getRawColor();
             if (cl.getRed() - cl.getBlue() > COLOR_THRESHOLD) {
+                // check if wood
                 redCount++;
                 blueCount = 0;
                 id = WOOD;
             } else {
+                // check if sturofoam
                 blueCount++;
                 redCount = 0;
                 id = SMURF;             
@@ -87,27 +91,7 @@ public class ObstacleDetection {
         Sound.systemSound(false, 3);
         LCD.drawString(id == SMURF ? "SMURF" : "WOOD", 0, 1);
 
+        // return obstacle id
         return id;
-        
-        // if (id == SMURF) {
-        //     nav.goForward(-7);
-        //     nav.turn(Math.PI);
-        //     nav.goForward(-5);
-        //     robot.grab();
-        //     nav.found = true;
-        //     break;
-        // } else {
-        //     nav.goForward(-5);
-        //     nav.turn(Math.PI / 2);
-
-        //     nav.goForward(30);
-        //     LCD.drawString("    ", 0, 1);
-        // }
-
-        // nav.travelTo(60.96, 182.88);
-        // nav.goForward(30);
-
-        // nav.turnTo(5 * Math.PI / 4);
-        // robot.letGo();
     }
 }
