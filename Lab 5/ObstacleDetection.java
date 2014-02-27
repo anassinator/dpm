@@ -10,116 +10,105 @@ import lejos.util.*;
 import lejos.robotics.*;
 import java.util.*;
 
-public class ObstacleDetection extends Thread {
-    private static final int WOOD = 0;
-    private static final int SMURF = 1;
+public class ObstacleDetection {
+    private final int WOOD = 0;
+    private final int SMURF = 1;
 
-    private static Robot robot;
-    private static Navigation nav;
+    private Robot robot;
+    public Navigation nav;
 
-    private static final int DISTANCE_THRESHOLD = 15;
-    private static final double COLOR_THRESHOLD = 0.05;
-    private static int counter = 0, filterCount = 0, blueCount = 0, redCount = 0;
-    private static int distance, id;
-    public static ColorSensor color = new ColorSensor(SensorPort. S2);
+    private final int DISTANCE_THRESHOLD = 15;
+    private final double COLOR_THRESHOLD = 0.05;
+    private int counter = 0, filterCount = 0, blueCount = 0, redCount = 0;
+    private int distance, id;
+    public ColorSensor color = new ColorSensor(SensorPort. S2);
 
-    public ObstacleDetection(Robot robot, Navigation nav) {
+    public ObstacleDetection(Robot robot) {
         this.robot = robot;
-        this.nav = nav;
     }
 
-    public void run() {
+    public int search() {
         robot.sonic.continuous();
-
-        // FOREVER
-        while (true) {
-            LCD.drawString("SEARCHING...", 0, 0);
-
-            // CLEAR COUNTERS
-            blueCount = 0;
-            redCount = 0;
-            filterCount = 0;
-
-            // MEASURE DISTANCE FROM OBJECT
-            // AND MAKE SURE WITHIN 15 CM
-            // OTHERWISE DRIVE FORWARD UNTIL
-            // OBJECT IS DETECTED
-            while (filterCount <= 10) {
-                if (robot.sonic.getDistance() < DISTANCE_THRESHOLD) {                    
-                    filterCount++;
-                }
-                else {
-                    filterCount = 0;
-                }
-            }
-
-            nav.paused = true;
-
-            // NOTIFY OF OBJECT
-            Sound.systemSound(true, 2);
-            LCD.drawString("OBJECT AHEAD", 0, 0);
-
-            distance = robot.sonic.getDistance();
-
-            // COMPARE RED AND BLUE COLOR VALUES
-            // FROM COLOR SENSOR TO DISTINGUISH
-            // BETWEEN STYROFOAM BLOCK AND WOODEN
-            // BLOCK
-            // WOODEN BLOCK IS SIGNIFICANTLY
-            // MORE RED
             
-            // robot.color.setFloodlight(true); 
-            
-            while (blueCount <= 100 && redCount <= 100) {
-                Color cl =  color.getRawColor();
-                if (Math.abs(cl.getBlue() - cl.getRed())/(double)cl.getRed() < COLOR_THRESHOLD) {
-                    blueCount++;
-                    redCount = 0;
-                    id = SMURF;
-                } else {
-                    redCount++;
-                    blueCount = 0;
-                    id = WOOD;             
-                }
+        LCD.drawString("SEARCHING...", 0, 0);
 
-                if (counter++ > 200) {
-                    nav.goForward(1);
-                    distance = robot.sonic.getDistance();
-                    counter = 0;
-                }
+        // CLEAR COUNTERS
+        blueCount = 0;
+        redCount = 0;
+        filterCount = 0;
+
+        // MEASURE DISTANCE FROM OBJECT
+        // AND MAKE SURE WITHIN 15 CM
+        // OTHERWISE DRIVE FORWARD UNTIL
+        // OBJECT IS DETECTED
+        while (filterCount <= 10) {
+            if (robot.sonic.getDistance() < DISTANCE_THRESHOLD) {                    
+                filterCount++;
             }
-
-            // robot.color.setFloodlight(false);
-
-            // NOTIFY OF OBJECT'S NATURE
-            Sound.systemSound(false, 3);
-            LCD.drawString(id == SMURF ? "SMURF" : "WOOD", 0, 1);
-            
-            if (id == SMURF) {
-                nav.goForward(-7);
-                nav.turn(Math.PI);
-                nav.goForward(-5);
-                robot.grab();
-                nav.found = true;
-                break;
-            } else {
-                nav.goForward(-5);
-                nav.turn(Math.PI / 2);
-
-                nav.goForward(30);
-                LCD.drawString("    ", 0, 1);
+            else {
+                return 0;
             }
-
-            nav.paused = false;
         }
 
-        nav.found = true;
-        nav.paused = false;
+        // NOTIFY OF OBJECT
+        Sound.systemSound(true, 2);
+        LCD.drawString("OBJECT AHEAD", 0, 0);
 
-        nav.travelTo(60.96, 182.88);
-        nav.goForward(30);
+        return 1;
 
-        nav.turnTo(5 * Math.PI / 4);
-        robot.letGo();
+    }
+
+    public int detect() {
+
+        // COMPARE RED AND BLUE COLOR VALUES
+        // FROM COLOR SENSOR TO DISTINGUISH
+        // BETWEEN STYROFOAM BLOCK AND WOODEN
+        // BLOCK
+        // WOODEN BLOCK IS SIGNIFICANTLY
+        // MORE RED
+        
+        // robot.color.setFloodlight(true); 
+        
+        while (blueCount <= 100 && redCount <= 100) {
+            Color cl =  color.getRawColor();
+            if (Math.abs(cl.getBlue() - cl.getRed())/(double)cl.getRed() < COLOR_THRESHOLD) {
+                blueCount++;
+                redCount = 0;
+                id = SMURF;
+            } else {
+                redCount++;
+                blueCount = 0;
+                id = WOOD;             
+            }
+        }
+
+        // robot.color.setFloodlight(false);
+
+        // NOTIFY OF OBJECT'S NATURE
+        Sound.systemSound(false, 3);
+        LCD.drawString(id == SMURF ? "SMURF" : "WOOD", 0, 1);
+
+        return id;
+        
+        // if (id == SMURF) {
+        //     nav.goForward(-7);
+        //     nav.turn(Math.PI);
+        //     nav.goForward(-5);
+        //     robot.grab();
+        //     nav.found = true;
+        //     break;
+        // } else {
+        //     nav.goForward(-5);
+        //     nav.turn(Math.PI / 2);
+
+        //     nav.goForward(30);
+        //     LCD.drawString("    ", 0, 1);
+        // }
+
+        // nav.travelTo(60.96, 182.88);
+        // nav.goForward(30);
+
+        // nav.turnTo(5 * Math.PI / 4);
+        // robot.letGo();
     }
 }

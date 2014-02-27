@@ -19,12 +19,4 @@ public class Robot {
     public static UltrasonicSensor sonic = new UltrasonicSensor(SensorPort.S3);
 
     public boolean localizing = false;
-
-    public void grab() {
-        claw.rotate(180);
-    }
-
-    public void letGo() {
-        claw.rotate(-180);
-    }
 }

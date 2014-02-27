@@ -6,21 +6,23 @@ import lejos.nxt.*;
 import lejos.util.*;
 
 public class Navigation extends Thread {
-    private static int FORWARD_SPEED = 250;
-    private static int ROTATE_SPEED = 50;
-    private static boolean turning = false, navigating = false, done = false; // setup needed flags
-    private static Odometer odometer;
-    private static double path[][]; // store desired path
-    private static NXTRegulatedMotor leftMotor = Motor.B, rightMotor = Motor.C; // setup motors
-    private static double leftRadius = 2.16, rightRadius = 2.14, width = 16.1; // vehicle properties
-    private static UltrasonicSensor sensor = new UltrasonicSensor(SensorPort.S2); // setup ultrasonic sensor
-    private static int threshold = 15; // threshold for ultrasonic sensor
-    public static boolean paused = false, found = false;
+    private int FORWARD_SPEED = 250;
+    private int ROTATE_SPEED = 50;
+    private boolean turning = false, navigating = false, done = false; // setup needed flags
+    private Odometer odometer;
+    private double path[][]; // store desired path
+    private NXTRegulatedMotor claw = Motor.A, leftMotor = Motor.B, rightMotor = Motor.C; // setup motors
+    private double leftRadius = 2.16, rightRadius = 2.14, width = 16.1; // vehicle properties
+    private UltrasonicSensor sensor = new UltrasonicSensor(SensorPort.S2); // setup ultrasonic sensor
+    private int threshold = 15; // threshold for ultrasonic sensor
+    public boolean paused = false, found = false, stop = false;
+    private ObstacleDetection obstacleManager;
 
-    public Navigation(Odometer odometer, double[][] path) {
+    public Navigation(Odometer odometer, ObstacleDetection obstacleManager, double[][] path) {
         // store odometer and path
         this.odometer = odometer;
         this.path = path;
+        this.obstacleManager = obstacleManager;
 
         // stop motors
         leftMotor.stop();
@@ -36,6 +38,17 @@ public class Navigation extends Thread {
         for (int i = 0; i < path.length; i++)
             if (!found)
                 travelTo(30.48 * path[i][0], 30.48 * path[i][1]);
+
+        goForward(-7);
+        turn(Math.PI);
+        goForward(-5);
+        grab();
+
+        travelTo(60.96, 182.88);
+        goForward(30);
+
+        turnTo(5 * Math.PI / 4);
+        letGo();
     }
 
     public void goForward() {
@@ -53,7 +66,7 @@ public class Navigation extends Thread {
         leftMotor.rotate(convertDistance(leftRadius, distance), false);
     }
 
-    public static void travelTo(double xDestination, double yDestination) {
+    public void travelTo(double xDestination, double yDestination) {
         // set navigation and done flags
         navigating = true;
         done = false;
@@ -85,14 +98,19 @@ public class Navigation extends Thread {
             rightMotor.rotate(convertDistance(rightRadius, desiredDistance), true);
 
             // while the motors are moving, keep measuring sensor data to avoid obstacles
-            while (leftMotor.isMoving() || rightMotor.isMoving()) {
+            while (!found && (leftMotor.isMoving() || rightMotor.isMoving())) {
                 // if obstacle detected
-                if (paused) {
-                    // stop motors
-                    stop();
+                if (obstacleManager.search() == 1)
+                    if(obstacleManager.detect() == 1) {
+                        found = true;
+                        stop();
+                        break;
+                    } else {
+                        goForward(-5);
+                        turn(Math.PI / 2);
+                        goForward(30);
+                    }
 
-                    while (paused);
-                }
             }
             
             // set done and return from function if and only if we are within +/- (1,1) of the desired destination
@@ -120,30 +138,37 @@ public class Navigation extends Thread {
         setForwardSpeed(FORWARD_SPEED);
     }
 
-    public static void turnTo(double theta) {
+    public void turnTo(double theta) {
         // calculate angle to rotate realtive to current angle
-        double currentOrientation = odometer.getTheta();
-        double angle = theta - currentOrientation;
+        boolean done = false;
 
-        // correct angle to remain within -180 and 180 degrees
-        // to minimize angle to spin
-        if (angle < -3.14)
-            angle += 6.28;
-        else if (angle > 3.14)
-            angle -= 6.28;
+        while (!done) {
+            double currentOrientation = odometer.getTheta();
+            double angle = theta - currentOrientation;
 
-        // set turning flag
-        turning = true; 
+            // correct angle to remain within -180 and 180 degrees
+            // to minimize angle to spin
+            if (angle < -3.14)
+                angle += 6.28;
+            else if (angle > 3.14)
+                angle -= 6.28;
 
-        // rotate said angle and wait until done
-        leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
-        rightMotor.rotate(convertAngle(rightRadius, width, angle), false);
+            // set turning flag
+            turning = true; 
+
+            // rotate said angle and wait until done
+            leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
+            rightMotor.rotate(convertAngle(rightRadius, width, angle), false);
+
+            if (Math.abs(odometer.getTheta() - theta) <= 0.02)
+                done = true;
+        }
 
         // reset turning flag
         turning = false;
     }
 
-    public static void stop() {
+    public void stop() {
         leftMotor.stop();
         rightMotor.stop();
     }
@@ -162,11 +187,12 @@ public class Navigation extends Thread {
         rightMotor.setSpeed(speed);
     }
 
+    public void grab() {
+        claw.rotate(180);
+    }
 
-    public static boolean isNavigating() {
-        // self-explanatory
-        // totally useless
-        return navigating;
+    public void letGo() {
+        claw.rotate(-180);
     }
 
     private static int convertDistance(double radius, double distance) {

@@ -51,7 +51,7 @@ public class Localizer {
         Sound.playTone(2000,100);
 
         // stop motors
-		nav.stop();
+		// nav.stop();
 
 		// switch direction and wait until it sees no wall
 		while (getFilteredData() < 50) {
@@ -70,7 +70,7 @@ public class Localizer {
         Sound.playTone(2000,100);
 
         // stop motors
-		nav.stop();
+		// nav.stop();
 
 		// measure orientation
 		deltaTheta = (secondAngle + firstAngle) / 2 - 50;

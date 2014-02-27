@@ -12,9 +12,9 @@ public class Lab5 {
     private static Odometer odometer = new Odometer();
     private static Display display = new Display(odometer);
     private static Robot robot = new Robot();
-    private static Navigation nav = new Navigation(odometer, path);
-    // private static Localizer localizer = new Localizer(robot, nav);
-    private static ObstacleDetection obstacleManager = new ObstacleDetection(robot, nav);
+    private static ObstacleDetection obstacleManager = new ObstacleDetection(robot);
+    private static Navigation nav = new Navigation(odometer, obstacleManager, path);
+    private static Localizer localizer = new Localizer(robot, nav);
 
     public static void main(String[] args) {
         // SET VOLUME TO MAX
@@ -32,8 +32,7 @@ public class Lab5 {
         odometer.start();
         display.start();
 
-        // localizer.doLocalization();
-        obstacleManager.start();
+        localizer.doLocalization();
         nav.start();
     }
 
