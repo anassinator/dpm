@@ -10,9 +10,9 @@ import lejos.util.*;
 
 public class Robot {
     public Odometer odometer;
-    public final double leftRadius = 2.14;              // RADIUS OF LEFT WHEEL
-    public final double rightRadius = 2.16;             // RADIUS OF RIGHT WHEEL
-    public final double width = 15.9;                   // DISTANCE BETWEEN WHEELS
+    public final double leftRadius = 2.16;              // RADIUS OF LEFT WHEEL
+    public final double rightRadius = 2.13;             // RADIUS OF RIGHT WHEEL
+    public final double width = 16.1;                   // DISTANCE BETWEEN WHEELS
     
     public NXTRegulatedMotor claw = Motor.A, leftMotor = Motor.B, rightMotor = Motor.C;
     public static ColorSensor color = new ColorSensor(SensorPort. S2);
