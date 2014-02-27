@@ -39,16 +39,18 @@ public class Navigation extends Thread {
             if (!found)
                 travelTo(30.48 * path[i][0], 30.48 * path[i][1]);
 
-        goForward(-7);
-        turn(Math.PI);
-        goForward(-5);
-        grab();
+        if (found) {
+            goForward(-7);
+            turn(Math.PI);
+            goForward(-5);
+            grab();
 
-        travelTo(60.96, 182.88);
-        goForward(30);
+            travelTo(60.96, 182.88);
+            goForward(30);
 
-        turnTo(5 * Math.PI / 4);
-        letGo();
+            turnTo(5 * Math.PI / 4);
+            letGo();
+        }
     }
 
     public void goForward() {
@@ -100,17 +102,17 @@ public class Navigation extends Thread {
             // while the motors are moving, keep measuring sensor data to avoid obstacles
             while (!found && (leftMotor.isMoving() || rightMotor.isMoving())) {
                 // if obstacle detected
-                if (obstacleManager.search() == 1)
+                if (obstacleManager.search() == 1) {
+                    stop();
                     if(obstacleManager.detect() == 1) {
                         found = true;
-                        stop();
                         break;
                     } else {
                         goForward(-5);
                         turn(Math.PI / 2);
                         goForward(30);
                     }
-
+                }
             }
             
             // set done and return from function if and only if we are within +/- (1,1) of the desired destination
@@ -142,7 +144,7 @@ public class Navigation extends Thread {
         // calculate angle to rotate realtive to current angle
         boolean done = false;
 
-        while (!done) {
+        // while (!done) {
             double currentOrientation = odometer.getTheta();
             double angle = theta - currentOrientation;
 
@@ -160,9 +162,9 @@ public class Navigation extends Thread {
             leftMotor.rotate(-convertAngle(leftRadius, width, angle), true);
             rightMotor.rotate(convertAngle(rightRadius, width, angle), false);
 
-            if (Math.abs(odometer.getTheta() - theta) <= 0.02)
-                done = true;
-        }
+            // if (Math.abs(odometer.getTheta() - theta) <= 0.02)
+            //     done = true;
+        // }
 
         // reset turning flag
         turning = false;

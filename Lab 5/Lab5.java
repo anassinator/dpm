@@ -32,7 +32,7 @@ public class Lab5 {
         odometer.start();
         display.start();
 
-        localizer.doLocalization();
+        // localizer.doLocalization();
         nav.start();
     }
 
