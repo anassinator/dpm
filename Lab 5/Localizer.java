@@ -28,7 +28,7 @@ public class Localizer {
 	public void doLocalization() {
 		robot.localizing = true;
 
-		nav.setRotateSpeed(200);
+		nav.setRotateSpeed(50);
 
 		double[] pos = new double [3];
 
@@ -96,10 +96,10 @@ public class Localizer {
 		distance = robot.sonic.getDistance();
 
 		// filter out incorrect values that are over 50 or under 30
-		if (distance >= 50 && ++counterLarge > 10) {
+		if (distance >= 50 && ++counterLarge > 30) {
 			this.distance = distance;
 			counterSmall = 0;
-		} else if (distance < 50 && ++counterSmall > 10) {
+		} else if (distance < 50 && ++counterSmall > 30) {
 			this.distance = distance;
 			counterLarge = 0;
 		}

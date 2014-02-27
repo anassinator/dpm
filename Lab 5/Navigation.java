@@ -45,10 +45,10 @@ public class Navigation extends Thread {
             goForward(-5);
             grab();
 
-            travelTo(60.96, 182.88, true);
+            travelTo(90.96, 182.88, true);
 
             turnTo(5 * Math.PI / 4, true);
-            goForward(-10);
+            goForward(-20);
             letGo();
         }
     }
@@ -109,9 +109,11 @@ public class Navigation extends Thread {
                         done = true;
                         break;
                     } else {
-                        goForward(-5);
+                        goForward(-7);
+                        turn(-Math.PI / 2);
+                        goForward(40);
                         turn(Math.PI / 2);
-                        goForward(30);
+                        goForward(10);
                     }
                 }
             }
@@ -172,9 +174,11 @@ public class Navigation extends Thread {
                         done = true;
                         break;
                     } else {
-                        goForward(-5);
+                        goForward(-7);
+                        turn(-Math.PI / 2);
+                        goForward(40);
                         turn(Math.PI / 2);
-                        goForward(30);
+                        goForward(10);
                     }
                 }
             }
