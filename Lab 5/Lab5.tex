@@ -1,0 +1,56 @@
+\documentclass[letterpaper,12pt]{article}
+\usepackage{courier}
+
+\begin{document}
+
+\title{Lab 5. Recognizing Objects}
+\date{\today}
+\author{Anass Al-Wohoush \quad \quad Malcolm William Watt \\ 260575013 \quad \quad \quad \quad \quad \quad \quad 260585950\\ Team 42}
+\maketitle
+
+\section{Data Analysis}{
+\begin{table}[h]
+\centering
+    \begin{tabular}{|r|r|r|r|}
+    \hline
+    Run \#  & Time to Localize   & Time to Find Block    & Time to Destination       \\ \hline
+    1       & 21                 & 45                    & 15                        \\ \hline
+    2       & 22                 & 56                    & 13                        \\ \hline
+    3       & 21                 & 61                    & 15                        \\ \hline
+    4       & 24                 & 67                    & 10                        \\ \hline
+    5       & 19                 & 70                    & 9                         \\ \hline
+    Average & 21                 & 60                    & 12                        \\ \hline
+    \end{tabular}
+    \caption {Times of each run (in seconds)}
+    \label{table:times}
+\end{table}
+\begin{table}[h]
+\centering
+    \begin{tabular}{|r|r|r|r|}
+    \hline
+    Run \#  & X Error (cm)       & Y Error (cm)          & Theta Error (^{\circ})    \\ \hline
+    1       & -10.1              & -2.4                  & 1                         \\ \hline
+    2       & -12.0              & -2.5                  & 3                         \\ \hline
+    3       & -11.7              & -2.6                  & 2                         \\ \hline
+    4       & -10.3              & -1.9                  & 0                         \\ \hline
+    5       & -11.8              & -1.9                  & 2                         \\ \hline
+    Average & -11.2              & -2.3                  & 2                         \\ \hline
+    \end{tabular}
+    \caption {Estimated errors of each run}
+    \label{table:errors}
+\end{table}
+\clearpage
+\noindent
+Both the first sections were reduced to zero errors in the detection mechanism. We ran ten tests with a wooden block and ten tests with a blue Styrofoam block and not a single false positive or false negative was detected.\\
+The average times to lacalize, to find the block and to travel to destination are provided in Table \ref{table:times}.\\
+The average errors in x, y and theta are provided in Table \ref{table:errors}.\\
+As it clearly shows our odometer's x value drifts to the left with time.
+}
+
+\section{Observations and Conclusion}{
+We used the same odometer, the same navigation code and the same localization from our previous labs with minor changes in the navigation and the removal of the odometer correction (using the color sensor) from our localization code. The navigation just needed new headings, and since it required more headings we used a 2 dimensional array to store the values. The fact that we did not have the odometer correction to help the robot mid-path had a big impact on its performance and required a lot of tweaking. The major set-back involved the fact that both the new obstacle detection file and the localizer and odometer corrector required the use of the color sensor in different circumstances, something we did not deal with, instead of just going forward without a color sensor to help the localizer and the odometer. This was perhaps not wise as we would have been better off mounting the color sensor on the arm so by changing its position we could have used it for both detection and localization as well as for the odometer correction.\\
+Well when the color sensor actually had the block in front of it we had no issue. The problems arose when the distance sensor had an object in front of it but the color sensor didn’t. In this case it was basically chance whether it would detect a blue or wood block. We could have fixed this by sweeping  using the distance sensor to determine the length of the object to a) detect what it is b) be able to go directly towards it instead of grazing objects and c) being able to more effectively avoid detected wood blocks.\\
+Minor bugs in the code caused severe delays in the progress of the block finding robot. Apparently, \texttt{new ColorSensor(SensorPort. S2)} compiles. Notice the space between the period and the \texttt{S2}. We have discovered that this has undefined behaviour. Morover, integration caused some issues when we tried to combine our previous labs together due to some incompatibilities. Unit testing would have definitely helped deal with these issues.
+}
+
+\end{document}
