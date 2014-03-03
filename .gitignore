@@ -6,19 +6,12 @@
 *.ear
 
 *.fls
-
 *.fdb_latexmk
-
 *.log
-
 *.gz
-
 *.aux
-
 *.nxj
-
 *.zip
-
 *.docx
-
 *.pdf
+*.DS_Store
